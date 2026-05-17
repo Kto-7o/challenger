@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 1. База данных PostgreSQL
   db:
@@ -34,6 +32,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/live" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   # 3. Ваше Java приложение
   app:
@@ -46,8 +49,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/myapp_db
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/myrealm
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/myrealm/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/challenges
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/challenges
     depends_on:
       db:
         condition: service_healthy

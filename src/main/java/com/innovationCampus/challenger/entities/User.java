@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -20,23 +19,23 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "username")
+    @Column(nullable = false)
     private String username;
 
-    @Column(name = "email")
+    @Column(unique = true, nullable = false)
+    private String tag;
+
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "image")
     private String image;
 
-    @Column(name = "birthday")
     private LocalDate birthday;
 
-    @Column(name = "role")
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     @ManyToMany
@@ -49,4 +48,7 @@ public class User {
 
     @ManyToMany(mappedBy = "users")
     private Set<Challenge> challenges;
+
+    @OneToMany(mappedBy = "user")
+    private Set<ChallengeHistory> history;
 }

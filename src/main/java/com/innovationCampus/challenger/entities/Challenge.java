@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -19,20 +19,29 @@ public class Challenge {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "description")
     private String description;
 
-    @Column(name = "img")
-    private String img;
+    @ManyToOne
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;
 
-    @Column(name = "start")
-    private LocalDate start;
+    private LocalDateTime deadline;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "proof_type", nullable = false)
+    private ProofType proofType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ChallengeStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "winner_id")
+    private User winner;
 
     @ManyToMany
     @JoinTable(
@@ -42,6 +51,12 @@ public class Challenge {
     )
     private Set<User> users;
 
-    @OneToOne(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
-    private StrikeChallenge strikeChallenge;
+    @OneToMany(mappedBy = "challenge")
+    private Set<Proof> proofs;
+
+    @OneToMany(mappedBy = "challenge")
+    private Set<ChallengeHistory> history;
+
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserChallengeStats> userStats;
 }

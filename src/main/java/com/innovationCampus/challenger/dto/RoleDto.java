@@ -1,6 +1,6 @@
 package com.innovationCampus.challenger.dto;
 
-public enum Role {
+public enum RoleDto {
     UNAUTHTORIZED,
     ADMIN,
     AUTHTORIZED
