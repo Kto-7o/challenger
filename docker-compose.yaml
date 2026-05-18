@@ -9,50 +9,31 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
+    networks:
+      - challenger_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d myapp_db"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # 2. Keycloak (Identity Provider)
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.6.0
-    container_name: keycloak_auth
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://db:5432/myapp_db
-      KC_DB_USERNAME: user
-      KC_DB_PASSWORD: password
-    command: start-dev
-    ports:
-      - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/live" ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  # 3. Ваше Java приложение
+  # 2. Ваше Java приложение
   app:
     build: .
     container_name: challenge_java_app
     ports:
       - "8081:8081"
     environment:
-      # Переопределяем параметры из application.properties для работы внутри Docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/myapp_db
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/challenges
-      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/challenges
+      TOKEN_SIGNING_KEY: dGhpcy1pcy1hLXNhbXBsZS1iYXNlNjQtZW5jb2RlZC1zZWNyZXQta2V5LXRoYXQtaXMtc3VmZmljaWVudGx5LWxvbmc=
+    networks:
+      - challenger_network
     depends_on:
       db:
         condition: service_healthy
-      keycloak:
-        condition: service_started
+
+networks:
+  challenger_network:
+    driver: bridge

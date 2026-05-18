@@ -5,8 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -15,7 +20,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +35,8 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    private String image;
+    @Column(nullable = false)
+    private String password;
 
     private LocalDate birthday;
 
@@ -51,4 +57,47 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private Set<ChallengeHistory> history;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    /**
+     * Returns the email used to authenticate the user.
+     * In this application, email is used as the username.
+     */
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    /**
+     * Returns the actual username (display name).
+     * To get the authentication username, use getUsername().
+     */
+    public String getDisplayName() {
+        return username;
+    }
+
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

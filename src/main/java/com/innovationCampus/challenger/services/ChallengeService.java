@@ -12,7 +12,6 @@ import com.innovationCampus.challenger.repositories.UserChallengeStatsRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -174,10 +173,7 @@ public class ChallengeService {
     }
 
     private User getCurrentUser() {
-        Jwt principal = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userTag = principal.getClaim("preferred_username");
-        return userRepository.findByTag(userTag)
-                .orElseThrow(() -> new UserNotFoundException("User with tag " + userTag + " not found"));
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     private ChallengeDto mapChallengeToDto(Challenge challenge) {

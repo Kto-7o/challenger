@@ -14,8 +14,9 @@ import com.innovationCampus.challenger.repositories.FriendRequestRepository;
 import com.innovationCampus.challenger.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class FriendService {
     private final UserRepository userRepository;
     private final FriendRequestRepository friendRequestRepository;
 
+    @Transactional(readOnly = true)
     public List<FriendDto> getFriends() {
         User currentUser = getCurrentUser();
         return currentUser.getFriends().stream()
@@ -34,6 +36,7 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public FriendRequestsResponseDto getFriendRequests() {
         User currentUser = getCurrentUser();
 
@@ -53,6 +56,7 @@ public class FriendService {
                 .build();
     }
 
+    @Transactional
     public void sendFriendRequest(Long userId) {
         User sender = getCurrentUser();
         User receiver = userRepository.findById(userId)
@@ -78,6 +82,7 @@ public class FriendService {
         friendRequestRepository.save(friendRequest);
     }
 
+    @Transactional
     public void respondToFriendRequest(Long requestId, boolean accepted) {
         User currentUser = getCurrentUser();
         FriendRequest friendRequest = friendRequestRepository.findById(requestId)
@@ -100,6 +105,7 @@ public class FriendService {
         friendRequestRepository.save(friendRequest);
     }
 
+    @Transactional
     public void removeFriend(Long userId) {
         User currentUser = getCurrentUser();
         User friend = userRepository.findById(userId)
@@ -116,16 +122,21 @@ public class FriendService {
     }
 
     private User getCurrentUser() {
-        Jwt principal = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userTag = principal.getClaim("preferred_username");
-        return userRepository.findByTag(userTag)
-                .orElseThrow(() -> new UserNotFoundException("User with tag " + userTag + " not found"));
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email;
+        if (principal instanceof UserDetails) {
+            email = ((UserDetails) principal).getUsername(); // This now correctly returns the email
+        } else {
+            throw new IllegalStateException("User not authenticated");
+        }
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email " + email));
     }
 
     private FriendDto mapUserToFriendDto(User user) {
         return FriendDto.builder()
                 .id(user.getId().toString())
-                .username(user.getUsername())
+                .username(user.getDisplayName()) // Use getDisplayName() for the actual username
                 .tag(user.getTag())
                 .activeChallenges(user.getChallenges().size())
                 .relation(FriendshipStatus.FRIEND)
@@ -143,7 +154,7 @@ public class FriendService {
     private FriendRequestDto.UserDto mapUserToRequestUserDto(User user) {
         return FriendRequestDto.UserDto.builder()
                 .id(user.getId().toString())
-                .username(user.getUsername())
+                .username(user.getDisplayName()) // Use getDisplayName()
                 .tag(user.getTag())
                 .build();
     }

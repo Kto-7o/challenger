@@ -11,8 +11,10 @@ import com.innovationCampus.challenger.repositories.FriendRequestRepository;
 import com.innovationCampus.challenger.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,17 +26,26 @@ public class UserService {
     private final UserRepository userRepository;
     private final FriendRequestRepository friendRequestRepository;
 
+    @Transactional(readOnly = true)
+    public UserDetailsService userDetailsService() {
+        return username -> userRepository.findByEmail(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    @Transactional(readOnly = true)
     public UserProfileDto getMyProfile() {
         User user = getCurrentUser();
         return buildUserProfileDto(user);
     }
 
+    @Transactional(readOnly = true)
     public UserProfileDto getUserProfile(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
         return buildUserProfileDto(user);
     }
 
+    @Transactional(readOnly = true)
     public List<UserSearchDto> searchUsers(String query) {
         User currentUser = getCurrentUser();
         List<User> users = userRepository.findByUsernameContainingIgnoreCaseOrTagContainingIgnoreCase(query, query);
@@ -61,10 +72,13 @@ public class UserService {
     }
 
     private User getCurrentUser() {
-        Jwt principal = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userTag = principal.getClaim("preferred_username");
-        return userRepository.findByTag(userTag)
-                .orElseThrow(() -> new UserNotFoundException("User with tag " + userTag + " not found"));
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+            return userRepository.findByEmail(username)
+                    .orElseThrow(() -> new UserNotFoundException("User not found with email " + username));
+        }
+        throw new IllegalStateException("User not authenticated");
     }
 
     private UserProfileDto buildUserProfileDto(User user) {
