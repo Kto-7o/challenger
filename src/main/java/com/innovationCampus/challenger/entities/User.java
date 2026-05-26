@@ -63,19 +63,11 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    /**
-     * Returns the email used to authenticate the user.
-     * In this application, email is used as the username.
-     */
     @Override
     public String getUsername() {
         return email;
     }
 
-    /**
-     * Returns the actual username (display name).
-     * To get the authentication username, use getUsername().
-     */
     public String getDisplayName() {
         return username;
     }

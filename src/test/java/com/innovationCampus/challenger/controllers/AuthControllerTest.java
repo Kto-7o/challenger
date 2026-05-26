@@ -30,6 +30,6 @@ class AuthControllerTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").isString());
+                .andExpect(jsonPath("$.accessToken").isString());
     }
 }
