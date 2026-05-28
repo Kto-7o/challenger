@@ -1,7 +1,7 @@
 package com.innovationCampus.challenger.dto;
 
 public record VerdictRequestDto(
-        String proofId,
+        long proofId,
         boolean accepted
 ) {
 }

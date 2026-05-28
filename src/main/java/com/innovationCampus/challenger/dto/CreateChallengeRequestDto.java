@@ -9,6 +9,6 @@ public record CreateChallengeRequestDto(
         String description,
         ProofType proofType,
         int deadlineDays,
-        List<String> invitedUserIds
+        List<long> invitedUserIds
 ) {
 }

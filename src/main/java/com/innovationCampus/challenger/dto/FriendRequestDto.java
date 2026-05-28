@@ -4,13 +4,13 @@ import lombok.Builder;
 
 @Builder
 public record FriendRequestDto(
-        String id,
+        long id,
         UserDto fromUser,
         UserDto toUser
 ) {
     @Builder
     public record UserDto(
-            String id,
+            long id,
             String username,
             String tag
     ) {

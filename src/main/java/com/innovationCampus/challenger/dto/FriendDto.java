@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record FriendDto(
-        String id,
+        long id,
         String username,
         String tag,
         int activeChallenges,

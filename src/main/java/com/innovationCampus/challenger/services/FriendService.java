@@ -135,7 +135,7 @@ public class FriendService {
 
     private FriendDto mapUserToFriendDto(User user) {
         return FriendDto.builder()
-                .id(user.getId().toString())
+                .id(user.getId())
                 .username(user.getDisplayName()) // Use getDisplayName() for the actual username
                 .tag(user.getTag())
                 .activeChallenges(user.getChallenges().size())
@@ -145,7 +145,7 @@ public class FriendService {
 
     private FriendRequestDto mapFriendRequestToDto(FriendRequest request) {
         return FriendRequestDto.builder()
-                .id(request.getId().toString())
+                .id(request.getId())
                 .fromUser(mapUserToRequestUserDto(request.getSender()))
                 .toUser(mapUserToRequestUserDto(request.getReceiver()))
                 .build();
@@ -153,7 +153,7 @@ public class FriendService {
 
     private FriendRequestDto.UserDto mapUserToRequestUserDto(User user) {
         return FriendRequestDto.UserDto.builder()
-                .id(user.getId().toString())
+                .id(user.getId())
                 .username(user.getDisplayName()) // Use getDisplayName()
                 .tag(user.getTag())
                 .build();

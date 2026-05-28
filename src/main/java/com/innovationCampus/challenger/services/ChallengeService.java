@@ -63,7 +63,7 @@ public class ChallengeService {
     public ChallengeDto createChallenge(CreateChallengeRequestDto request) {
         User creator = getCurrentUser();
         Set<User> invitedUsers = request.invitedUserIds().stream()
-                .map(Long::parseLong)
+    //            .map(Long::parseLong)
                 .map(id -> userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found")))
                 .collect(Collectors.toSet());
         invitedUsers.add(creator);
@@ -119,7 +119,7 @@ public class ChallengeService {
             throw new ForbiddenException("Only the creator of the challenge can give a verdict");
         }
 
-        Proof proof = proofRepository.findById(Long.parseLong(request.proofId()))
+        Proof proof = proofRepository.findById(request.proofId())
                 .orElseThrow(() -> new UserNotFoundException("Proof with id " + request.proofId() + " not found"));
 
         User proofOwner = proof.getUser();
@@ -163,8 +163,6 @@ public class ChallengeService {
 
         List<Challenge> incomingChallenges = challengeRepository.findAllByStatus(ChallengeStatus.INCOMING);
         for (Challenge challenge : incomingChallenges) {
-            // Assuming challenges become active at the start of the day of their creation.
-            // This logic might need adjustment based on the exact requirements.
             if (challenge.getDeadline().minusDays(7).toLocalDate().isEqual(LocalDate.now())) {
                  challenge.setStatus(ChallengeStatus.ACTIVE);
                  challengeRepository.save(challenge);
@@ -182,10 +180,10 @@ public class ChallengeService {
                 .collect(Collectors.toList());
 
         return ChallengeDto.builder()
-                .id(challenge.getId().toString())
+                .id(challenge.getId())//.toString())
                 .title(challenge.getName())
                 .description(challenge.getDescription())
-                .creatorId(challenge.getCreator().getId().toString())
+                .creatorId(challenge.getCreator().getId())//.toString())
                 .creatorName(challenge.getCreator().getUsername())
                 .deadline(challenge.getDeadline().toEpochSecond(ZoneOffset.UTC))
                 .proofType(challenge.getProofType())
@@ -197,8 +195,8 @@ public class ChallengeService {
 
     private PendingProofDto mapProofToPendingProofDto(Proof proof) {
         return PendingProofDto.builder()
-                .id(proof.getId().toString())
-                .userId(proof.getUser().getId().toString())
+                .id(proof.getId())
+                .userId(proof.getUser().getId())
                 .userName(proof.getUser().getUsername())
                 .mediaUrl(proof.getMediaUrl())
                 .createdAt(proof.getCreatedAt().toEpochSecond(ZoneOffset.UTC))
@@ -207,8 +205,8 @@ public class ChallengeService {
 
     private ProofDto mapProofToDto(Proof proof) {
         return ProofDto.builder()
-                .id(proof.getId().toString())
-                .userId(proof.getUser().getId().toString())
+                .id(proof.getId())
+                .userId(proof.getUser().getId())
                 .mediaUrl(proof.getMediaUrl())
                 .createdAt(proof.getCreatedAt().toEpochSecond(ZoneOffset.UTC))
                 .build();

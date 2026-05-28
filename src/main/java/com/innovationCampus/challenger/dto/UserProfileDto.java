@@ -8,7 +8,7 @@ import java.util.List;
 
 @Builder
 public record UserProfileDto(
-        String id,
+        long id,
         String username,
         String tag,
         String email,

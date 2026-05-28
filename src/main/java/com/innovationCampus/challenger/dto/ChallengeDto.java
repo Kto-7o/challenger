@@ -9,10 +9,10 @@ import java.util.List;
 
 @Builder
 public record ChallengeDto(
-        String id,
+        long id,
         String title,
         String description,
-        String creatorId,
+        long creatorId,
         String creatorName,
         long deadline,
         ProofType proofType,

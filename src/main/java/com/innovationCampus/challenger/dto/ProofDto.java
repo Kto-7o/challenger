@@ -4,8 +4,8 @@ import lombok.Builder;
 
 @Builder
 public record ProofDto(
-        String id,
-        String userId,
+        long id,
+        long userId,
         String mediaUrl,
         long createdAt
 ) {

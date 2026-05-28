@@ -52,7 +52,7 @@ public class UserService {
 
         return users.stream()
                 .map(user -> UserSearchDto.builder()
-                        .id(user.getId().toString())
+                        .id(user.getId())
                         .username(user.getUsername())
                         .tag(user.getTag())
                         .relation(getFriendshipStatus(currentUser, user))
@@ -104,7 +104,7 @@ public class UserService {
                 .collect(Collectors.toList());
 
         return UserProfileDto.builder()
-                .id(user.getId().toString())
+                .id(user.getId())
                 .username(user.getUsername())
                 .tag(user.getTag())
                 .email(user.getEmail())

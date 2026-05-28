@@ -4,8 +4,8 @@ import lombok.Builder;
 
 @Builder
 public record PendingProofDto(
-        String id,
-        String userId,
+        long id,
+        long userId,
         String userName,
         String mediaUrl,
         long createdAt
